@@ -7,11 +7,13 @@ nodes = []
 
 # build list from txt file
 def build():
-	f = open('mat-100.txt', "r")
+	f = open(sys.argv[1], "r")
 
 	for l in f:
 		s = l.split(' ')
-		nodes.append([float(s[1]), float(s[2])])
+		nodes.append([float(s[1]), float(s[2]), s[0]])
+
+	f.close()
 
 
 # distance funciton to compute distance of the entire tour
@@ -26,6 +28,16 @@ def distance(t):
 	return result
 
 
+def result(best):
+	f = open(sys.argv[2], "w")
+
+	f.write(str(distance(best)) + "\n")
+
+	for b in best:
+		f.write(str(b[2]) + " ")
+
+	f.close()
+
 # anneal function
 def sa():
 	t = 10000
@@ -35,7 +47,6 @@ def sa():
 	best = current.copy()
 
 	while t > 1:
-		#print(t)
 		new = current.copy();
 
 		p1 = random.randint(0, len(new) - 1)
@@ -60,7 +71,9 @@ def sa():
 	return best
 
 
+
 build()
 print("distance before: " + str(distance(nodes)))
 b = sa()
 print("distance after: " + str(distance(b)))
+result(b)
