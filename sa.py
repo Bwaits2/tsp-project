@@ -7,7 +7,7 @@ nodes = []
 
 # build list from txt file
 def build():
-	f = open('mat-1000.txt', "r")
+	f = open('mat-100.txt', "r")
 
 	for l in f:
 		s = l.split(' ')
