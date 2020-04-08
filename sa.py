@@ -1,12 +1,13 @@
 import math
 import random
+import sys
 
 # globals
 nodes = []
 
 # build list from txt file
 def build():
-	f = open('mat-test.txt', "r")
+	f = open('mat-1000.txt', "r")
 
 	for l in f:
 		s = l.split(' ')
@@ -27,14 +28,14 @@ def distance(t):
 
 # anneal function
 def sa():
-	t = 100000
+	t = 10000
 	cr = .003
 
 	current = nodes.copy()
 	best = current.copy()
 
 	while t > 1:
-		print(t)
+		#print(t)
 		new = current.copy();
 
 		p1 = random.randint(0, len(new) - 1)
@@ -45,8 +46,11 @@ def sa():
 		c = distance(current)
 		n = distance(new)
 
-		if math.exp((c-n)/t) > random.random():
-			current = new.copy()
+		try:
+			if math.exp((c-n)/t) > random.random():
+				current = new.copy()
+		except OverflowError:
+			pass	
 
 		if n < c:
 			best = new.copy()
