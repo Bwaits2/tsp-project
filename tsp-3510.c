@@ -13,9 +13,10 @@ typedef struct Node {
 } Node;
 
 int NUM_NODES = 1;
-Node *nodes;
-int **distances;
-
+Node nodes[1024];
+int distances[1024][1024];
+Node current[1024];
+Node best[1024];
 
 // function delarations
 void build(char *filepath);
@@ -30,7 +31,7 @@ void build(char *filepath) {
         printf("FAILED TO LOAD FILE\n");
         return;
     }
-    nodes = (Node *)malloc(sizeof(Node) * 1024); // fix size
+    // nodes = (Node *)malloc(sizeof(Node) * 1024); // fix size
 
     for (int i = 0; i < 300; i++) {
         char buffer[64];
@@ -47,9 +48,9 @@ void build(char *filepath) {
     fclose(fp);
 
     // allcate size for the distance table
-    distances = (int **)calloc(sizeof(Node) * NUM_NODES, 1); // fix size
-    for (int i = 1; i <= NUM_NODES; i++)
-        distances[i] = (int *)calloc(NUM_NODES * sizeof(int), 1);
+    // distances = (int **)calloc(sizeof(int *) * (NUM_NODES), 1); // fix size
+    // for (int i = 1; i <= NUM_NODES; i++)
+    //     distances[i] = (int *)calloc((NUM_NODES) * sizeof(int), 1);
 
     // populate the distances table
     for (int i = 1; i <= NUM_NODES; i++) {
@@ -108,16 +109,23 @@ Node* sa() {
     int t = 1000000;
     float cr = .0001;
 
-    Node *current = (Node*)malloc((sizeof(Node) * NUM_NODES) + 1);
-    memcpy(current, nodes, (sizeof(Node) * NUM_NODES) + 1);
+    // Node *current = (Node*)malloc((sizeof(Node) * NUM_NODES) + 1);
+    // memcpy(current, nodes, (sizeof(Node) * NUM_NODES) + 1);
+    for (int i = 1; i <= NUM_NODES; i++)
+        current[i] = nodes[i];
 
-    Node *best = (Node*)malloc((sizeof(Node) * NUM_NODES) + 1);
-    memcpy(best, current, (sizeof(Node) * NUM_NODES) + 1);
+    // Node *best = (Node*)malloc((sizeof(Node) * NUM_NODES) + 1);
+    // memcpy(best, current, (sizeof(Node) * NUM_NODES) + 1);
+    for (int i = 1; i <= NUM_NODES; i++)
+        best[i] = nodes[i];
 
     while (t > 1) {
 
-        Node *new = malloc((sizeof(Node) * NUM_NODES) + 1);
-        memcpy(new, current, (sizeof(Node) * NUM_NODES) + 1);
+        // Node *new = malloc((sizeof(Node) * NUM_NODES) + 1);
+        // memcpy(new, current, (sizeof(Node) * NUM_NODES) + 1);
+        Node new[1024];
+        for (int i = 1; i <= NUM_NODES; i++)
+            new[i] = current[i];
 
         // #This is just a test, I dont want to handle edge case of edge swapping so fix this
         // p1 = random.randint(1, len(new) - 2)
@@ -125,9 +133,8 @@ Node* sa() {
         int p1 = (rand() % (NUM_NODES-1))+2;
 
         int p2 = p1;
-        while (p2 == p1) {
+        while (p2 == p1)
             p2 = (rand() % (NUM_NODES-1))+2;
-        }
 
         Node temp = new[p1];
         new[p1] = new[p2];
@@ -166,10 +173,14 @@ Node* sa() {
         errno = 0;
         float val = exp((c-n)/t);
         if (errno != ERANGE && val > rand())
-            current = new;
+            // current = new;
+            for (int i = 1; i <= NUM_NODES; i++)
+                current[i] = new[i];
 
         if (n < c)
-            best = new;
+            // best = new;
+            for (int i = 1; i <= NUM_NODES; i++)
+                best[i] = new[i];
 
         t *= 1 - cr;
     }
@@ -180,9 +191,6 @@ Node* sa() {
 int main(int argc, char *argv[]) {
     srand(time(NULL));
     build(argv[1]);
-
-    // for (int i = 1; i <= NUM_NODES; i++)
-    //     printf("%d\n", nodes[i].id);
 
     compute();
     return 0;

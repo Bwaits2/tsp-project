@@ -13,5 +13,8 @@ all: $(TARGET)
 $(TARGET): $(TARGET).c
 	$(CC) $(CFLAGS) -o $(TARGET) $(TARGET).c -lm
 
+valgrind:
+		valgrind ./$(TARGET)
+
 clean:
 	$(RM) $(TARGET)

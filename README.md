@@ -13,7 +13,7 @@ todo:
 1. add timer like in the pdf
 2. standard deviation
 3. print output path to output file
-4. FIX MEMORY LEAKS - seriously, I didnt use free a single time, rip
+4. Fix the arbitrary node upper limit (1024)
 
 potential ideas:
 1. writing a script that runs tsp-3510 a bunch of times to get an idea for the best t and cr
