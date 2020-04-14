@@ -1,7 +1,11 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
+#include <string.h>
+#include <errno.h>
+#include <time.h>
 
+// globals
 typedef struct Node {
     int id;
     float x;
@@ -12,12 +16,21 @@ int NUM_NODES = 1;
 Node *nodes;
 int **distances;
 
+
+// function delarations
+void build(char *filepath);
+int distance(Node *tour);
+void compute();
+Node* sa();
+
 void build(char *filepath) {
     FILE *fp;
-    
-    nodes = (Node *)malloc(sizeof(Node) * 1024); // fix size
 
-    fp = fopen(filepath, "r");
+    if((fp = fopen(filepath, "r")) == NULL) {
+        printf("FAILED TO LOAD FILE\n");
+        return;
+    }
+    nodes = (Node *)malloc(sizeof(Node) * 1024); // fix size
 
     for (int i = 0; i < 300; i++) {
         char buffer[64];
@@ -35,9 +48,8 @@ void build(char *filepath) {
 
     // allcate size for the distance table
     distances = (int **)calloc(sizeof(Node) * NUM_NODES, 1); // fix size
-    for (int i = 1; i <= NUM_NODES; i++) {
+    for (int i = 1; i <= NUM_NODES; i++)
         distances[i] = (int *)calloc(NUM_NODES * sizeof(int), 1);
-    }
 
     // populate the distances table
     for (int i = 1; i <= NUM_NODES; i++) {
@@ -61,8 +73,117 @@ void build(char *filepath) {
     // }
 }
 
-int main(int argc, char *argv[]) {
+int distance(Node *tour) {
+    int result = 0;
 
+    int i = 1;
+    while (i < NUM_NODES) {
+        result += distances[tour[i].id][tour[i-1].id];
+        i += 1;
+    }
+
+    return result;
+}
+
+void compute() {
+    int results[10];
+    for (int i = 0; i < 10; i++) {
+        Node *sa_result = sa();
+        results[i] = distance(sa_result);
+    }
+
+    // print results
+    for (int i = 0; i < 10; i++)
+        printf("%d\n", results[i]);
+
+    printf("\n");
+    float mean = 0;
+    for (int i = 0; i < 10; i++)
+        mean += results[i];
+    mean /= 10;
+    printf("mean: %f\n", mean);
+}
+
+Node* sa() {
+    int t = 1000000;
+    float cr = .0001;
+
+    Node *current = (Node*)malloc((sizeof(Node) * NUM_NODES) + 1);
+    memcpy(current, nodes, (sizeof(Node) * NUM_NODES) + 1);
+
+    Node *best = (Node*)malloc((sizeof(Node) * NUM_NODES) + 1);
+    memcpy(best, current, (sizeof(Node) * NUM_NODES) + 1);
+
+    while (t > 1) {
+
+        Node *new = malloc((sizeof(Node) * NUM_NODES) + 1);
+        memcpy(new, current, (sizeof(Node) * NUM_NODES) + 1);
+
+        // #This is just a test, I dont want to handle edge case of edge swapping so fix this
+        // p1 = random.randint(1, len(new) - 2)
+        // srand (time(NULL));
+        int p1 = (rand() % (NUM_NODES-1))+2;
+
+        int p2 = p1;
+        while (p2 == p1) {
+            p2 = (rand() % (NUM_NODES-1))+2;
+        }
+
+        Node temp = new[p1];
+        new[p1] = new[p2];
+        new[p2] = temp;
+
+        int c = distance(current);
+
+        int curr_p1prev = current[p1 - 1].id;
+        int curr_p1 = current[p1].id;
+        int curr_p1next = current[p1 + 1].id;
+
+        int curr_p2prev = current[p2 - 1].id;
+        int curr_p2 = current[p2].id;
+        int curr_p2next = current[p2 + 1].id;
+
+        int c_removed, n_added = 0;
+
+        // sequential nodes p1 < p2 
+        if (p1 - p2 == -1) {
+            c_removed = distances[curr_p1prev][curr_p1] + distances[curr_p2][curr_p2next];
+            n_added = distances[curr_p1prev][curr_p2] + distances[curr_p1][curr_p2next];
+
+        // sequential nodes p1 > p2 
+        } else if (p1 - p2 == 1) {
+            c_removed = distances[curr_p2prev][curr_p2] + distances[curr_p1][curr_p1next];
+            n_added = distances[curr_p2prev][curr_p1] + distances[curr_p2][curr_p1next];
+
+        // non-sequential nodes
+        } else {
+            c_removed = distances[curr_p1prev][curr_p1] + distances[curr_p1][curr_p1next] + distances[curr_p2prev][curr_p2] + distances[curr_p2][curr_p2next]; 
+            n_added = distances[curr_p1prev][curr_p2] + distances[curr_p2][curr_p1next] + distances[curr_p2prev][curr_p1] + distances[curr_p1][curr_p2next];
+        }
+
+        int n = c - c_removed + n_added;
+
+        errno = 0;
+        float val = exp((c-n)/t);
+        if (errno != ERANGE && val > rand())
+            current = new;
+
+        if (n < c)
+            best = new;
+
+        t *= 1 - cr;
+    }
+
+    return best;
+}
+
+int main(int argc, char *argv[]) {
+    srand(time(NULL));
     build(argv[1]);
+
+    // for (int i = 1; i <= NUM_NODES; i++)
+    //     printf("%d\n", nodes[i].id);
+
+    compute();
     return 0;
 }
