@@ -4,6 +4,11 @@
 this link is helpful:
 http://www.theprojectspot.com/tutorial-post/simulated-annealing-algorithm-for-beginners/6
 
+Compile instructions:
+1. be in a unix vm
+2. type make
+3. ./tsp-3510 mat-100.txt output.txt
+
 todo:
 1. add timer like in the pdf
 2. clean up code

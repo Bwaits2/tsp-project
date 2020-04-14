@@ -1,6 +1,7 @@
 import math
 import random
 import sys
+from ctypes import *
 
 from statistics import stdev, mean
 from time import perf_counter
@@ -57,7 +58,7 @@ def result(best):
     f.write(str(distance(best)) + "\n")
 
     for b in best:
-    	f.write(str(b[2]) + " ")
+        f.write(str(b[2]) + " ")
 
     f.close()
 
@@ -139,6 +140,11 @@ def sa():
 
 curr_time = perf_counter()
 build()
-compute()
+
+
+c_file = CDLL('./sa.so')
+print(c_file.sa())
+
+# compute()
 end_time = perf_counter()
 print("time elapsed: ", end_time - curr_time)
