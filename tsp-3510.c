@@ -13,9 +13,10 @@ typedef struct Node {
 } Node;
 
 int NUM_NODES = 1;
-Node nodes[1024];
 int distances[1024][1024];
+Node nodes[1024];
 Node current[1024];
+Node new[1024];
 Node best[1024];
 clock_t start;
 int maxt;
@@ -93,8 +94,6 @@ void compute(char *filepath) {
     fp = fopen (filepath, "w");
     int results[10];
 
-
-
     for (int i = 1; i <= 10; i++) {
         Node *sa_result = sa();
         fprintf(fp, "Tour %d:\n[", i);
@@ -102,7 +101,7 @@ void compute(char *filepath) {
             fprintf(fp, "%d ", sa_result[j].id);
         fprintf(fp, "%d]\n", sa_result[1].id);
         results[i-1] = distance(sa_result);
-        fprintf(fp, "Distance: %d\n\n", results[i-1]);
+        fprintf(fp, "Cost: %d\n\n", results[i-1]);
     }
 
     float mean = 0;
@@ -113,9 +112,6 @@ void compute(char *filepath) {
 
 
     //Calculate standard devation here
-
-
-
     fclose(fp);
 
 
@@ -128,90 +124,47 @@ void compute(char *filepath) {
 
 Node* sa() {
     // best seems to be 100, .0001
-    double t = 100;
+    double t = 10000;
     float cr = .0001;
 
     if ((((double) (clock() - t)) / CLOCKS_PER_SEC) >= maxt) {
         early_exit();
     }
 
-    // Node *current = (Node*)malloc((sizeof(Node) * NUM_NODES) + 1);
-    // memcpy(current, nodes, (sizeof(Node) * NUM_NODES) + 1);
     for (int i = 1; i <= NUM_NODES; i++)
         current[i] = nodes[i];
 
-    // Node *best = (Node*)malloc((sizeof(Node) * NUM_NODES) + 1);
-    // memcpy(best, current, (sizeof(Node) * NUM_NODES) + 1);
     for (int i = 1; i <= NUM_NODES; i++)
         best[i] = nodes[i];
 
     while (t > 1) {
 
-        // Node *new = malloc((sizeof(Node) * NUM_NODES) + 1);
-        // memcpy(new, current, (sizeof(Node) * NUM_NODES) + 1);
-        Node new[1024];
         for (int i = 1; i <= NUM_NODES; i++)
             new[i] = current[i];
 
-        // #This is just a test, I dont want to handle edge case of edge swapping so fix this
-        // p1 = random.randint(1, len(new) - 2)
-        // srand (time(NULL));
-        int p1 = (rand() % (NUM_NODES-1))+2;
-
+        int p1 = (rand() % (NUM_NODES))+1;
         int p2 = p1;
         while (p2 == p1)
-            p2 = (rand() % (NUM_NODES-1))+2;
+            p2 = (rand() % (NUM_NODES))+1;
 
         Node temp = new[p1];
         new[p1] = new[p2];
         new[p2] = temp;
 
         int c = distance(current);
+        int n = distance(new);
 
-        int curr_p1prev = current[p1 - 1].id;
-        int curr_p1 = current[p1].id;
-        int curr_p1next = current[p1 + 1].id;
-
-        int curr_p2prev = current[p2 - 1].id;
-        int curr_p2 = current[p2].id;
-        int curr_p2next = current[p2 + 1].id;
-
-        int c_removed, n_added = 0;
-
-        // sequential nodes p1 < p2
-        if (p1 - p2 == -1) {
-            c_removed = distances[curr_p1prev][curr_p1] + distances[curr_p2][curr_p2next];
-            n_added = distances[curr_p1prev][curr_p2] + distances[curr_p1][curr_p2next];
-
-        // sequential nodes p1 > p2
-        } else if (p1 - p2 == 1) {
-            c_removed = distances[curr_p2prev][curr_p2] + distances[curr_p1][curr_p1next];
-            n_added = distances[curr_p2prev][curr_p1] + distances[curr_p2][curr_p1next];
-
-        // non-sequential nodes
-        } else {
-            c_removed = distances[curr_p1prev][curr_p1] + distances[curr_p1][curr_p1next] + distances[curr_p2prev][curr_p2] + distances[curr_p2][curr_p2next];
-            n_added = distances[curr_p1prev][curr_p2] + distances[curr_p2][curr_p1next] + distances[curr_p2prev][curr_p1] + distances[curr_p1][curr_p2next];
-        }
-
-        int n = c - c_removed + n_added;
-
-        errno = 0;
-        float val;
-        if (n < c) {
-            val = 1.0;
-        } else {
-            val = exp((c-n)/t);
-        }
-        if (errno != ERANGE && val > (float)rand() / (float)RAND_MAX)
-            // current = new;
+        if (exp((c-n)/t) > (rand()/(double)RAND_MAX)) {
+            // current = new
             for (int i = 1; i <= NUM_NODES; i++)
                 current[i] = new[i];
+        }
 
-        if (n < c)
+        if (n < c) {
             // best = new;
             for (int i = 1; i <= NUM_NODES; i++)
                 best[i] = new[i];
+        }
 
         t *= 1 - cr;
     }
@@ -228,7 +181,9 @@ int main(int argc, char *argv[]) {
     start = clock();
     maxt = atoi(argv[3]);
 
-    srand(time(NULL));
+    time_t tm;
+    srand((unsigned) time(&tm));
+
     build(argv[1]);
     compute(argv[2]);
 
