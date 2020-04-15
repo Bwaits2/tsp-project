@@ -78,8 +78,12 @@ int distance(Node *tour) {
     int result = 0;
 
     int i = 1;
-    while (i < NUM_NODES) {
-        result += distances[tour[i].id][tour[i-1].id];
+    while (i <= NUM_NODES) {
+        if (i == NUM_NODES) {
+            result += distances[tour[0].id][tour[i-1].id];
+        } else {
+            result += distances[tour[i].id][tour[i-1].id];
+        }
         i += 1;
     }
 
@@ -106,7 +110,7 @@ void compute() {
 }
 
 Node* sa() {
-    int t = 1000000;
+    double t = 100;
     float cr = .0001;
 
     // Node *current = (Node*)malloc((sizeof(Node) * NUM_NODES) + 1);
@@ -152,19 +156,19 @@ Node* sa() {
 
         int c_removed, n_added = 0;
 
-        // sequential nodes p1 < p2 
+        // sequential nodes p1 < p2
         if (p1 - p2 == -1) {
             c_removed = distances[curr_p1prev][curr_p1] + distances[curr_p2][curr_p2next];
             n_added = distances[curr_p1prev][curr_p2] + distances[curr_p1][curr_p2next];
 
-        // sequential nodes p1 > p2 
+        // sequential nodes p1 > p2
         } else if (p1 - p2 == 1) {
             c_removed = distances[curr_p2prev][curr_p2] + distances[curr_p1][curr_p1next];
             n_added = distances[curr_p2prev][curr_p1] + distances[curr_p2][curr_p1next];
 
         // non-sequential nodes
         } else {
-            c_removed = distances[curr_p1prev][curr_p1] + distances[curr_p1][curr_p1next] + distances[curr_p2prev][curr_p2] + distances[curr_p2][curr_p2next]; 
+            c_removed = distances[curr_p1prev][curr_p1] + distances[curr_p1][curr_p1next] + distances[curr_p2prev][curr_p2] + distances[curr_p2][curr_p2next];
             n_added = distances[curr_p1prev][curr_p2] + distances[curr_p2][curr_p1next] + distances[curr_p2prev][curr_p1] + distances[curr_p1][curr_p2next];
         }
 
