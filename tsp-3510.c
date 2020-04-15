@@ -108,18 +108,24 @@ void compute(char *filepath) {
     for (int i = 0; i < 10; i++)
         mean += results[i];
     mean /= 10;
-    fprintf(fp, "\nMean: %f\n\n", mean);
+    fprintf(fp, "\nMean: %f\n", mean);
 
 
     //Calculate standard devation here
+    float standDev = 0.0;
+    for (int i = 0; i < 10; i++)
+        standDev += pow(results[i] - mean, 2);
+    standDev = sqrt(standDev / 10);
+    fprintf(fp, "Standard Deviation: %f\n", standDev);
+
+
     fclose(fp);
 
 
     // print results to console
     for (int i = 0; i < 10; i++)
         printf("%d\n", results[i]);
-    printf("\n");
-    printf("mean: %f\n", mean);
+    printf("\nMean: %f\nStandard Deviation: %f\n", mean, standDev);
 }
 
 Node* sa() {
