@@ -17,12 +17,15 @@ Node nodes[1024];
 int distances[1024][1024];
 Node current[1024];
 Node best[1024];
+clock_t start;
+int maxt;
 
 // function delarations
 void build(char *filepath);
 int distance(Node *tour);
 void compute();
 Node* sa();
+void early_exit();
 
 void build(char *filepath) {
     FILE *fp;
@@ -110,8 +113,13 @@ void compute() {
 }
 
 Node* sa() {
+    // best seems to be 100, .0001
     double t = 100;
     float cr = .0001;
+
+    if ((((double) (clock() - t)) / CLOCKS_PER_SEC) >= maxt) {
+        early_exit();
+    }
 
     // Node *current = (Node*)malloc((sizeof(Node) * NUM_NODES) + 1);
     // memcpy(current, nodes, (sizeof(Node) * NUM_NODES) + 1);
@@ -192,7 +200,15 @@ Node* sa() {
     return best;
 }
 
+void early_exit() {
+    printf("early exit\n");
+    exit(0);
+}
+
 int main(int argc, char *argv[]) {
+    start = clock();
+    maxt = atoi(argv[3]);
+
     srand(time(NULL));
     build(argv[1]);
 
