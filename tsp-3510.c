@@ -36,7 +36,7 @@ void build(char *filepath) {
     }
     // nodes = (Node *)malloc(sizeof(Node) * 1024); // fix size
 
-    for (int i = 0; i < 300; i++) {
+    for (int i = 0; i < 1024; i++) {
         char buffer[64];
         fgets(buffer, 64, fp);
         sscanf(buffer, "%d %f %f", &nodes[NUM_NODES].id, &nodes[NUM_NODES].x, &nodes[NUM_NODES].y);
@@ -88,22 +88,41 @@ int distance(Node *tour) {
     return result;
 }
 
-void compute() {
+void compute(char *filepath) {
+    FILE *fp;
+    fp = fopen (filepath, "w");
     int results[10];
-    for (int i = 0; i < 10; i++) {
+
+
+
+    for (int i = 1; i <= 10; i++) {
         Node *sa_result = sa();
-        results[i] = distance(sa_result);
+        fprintf(fp, "Tour %d:\n[", i);
+        for (int j = 1; j <= NUM_NODES; j++)
+            fprintf(fp, "%d ", sa_result[j].id);
+        fprintf(fp, "%d]\n", sa_result[1].id);
+        results[i-1] = distance(sa_result);
+        fprintf(fp, "Distance: %d\n\n", results[i-1]);
     }
 
-    // print results
-    for (int i = 0; i < 10; i++)
-        printf("%d\n", results[i]);
-
-    printf("\n");
     float mean = 0;
     for (int i = 0; i < 10; i++)
         mean += results[i];
     mean /= 10;
+    fprintf(fp, "\nMean: %f\n\n", mean);
+
+
+    //Calculate standard devation here
+    
+
+
+    fclose(fp);
+
+
+    // print results to console
+    for (int i = 0; i < 10; i++)
+        printf("%d\n", results[i]);
+    printf("\n");
     printf("mean: %f\n", mean);
 }
 
@@ -206,7 +225,7 @@ int main(int argc, char *argv[]) {
 
     srand(time(NULL));
     build(argv[1]);
+    compute(argv[2]);
 
-    compute();
     return 0;
 }
