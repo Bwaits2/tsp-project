@@ -80,15 +80,10 @@ void build(char *filepath) {
 int distance(Node *tour) {
     int result = 0;
 
-    int i = 1;
-    while (i <= NUM_NODES) {
-        if (i == NUM_NODES) {
-            result += distances[tour[0].id][tour[i-1].id];
-        } else {
-            result += distances[tour[i].id][tour[i-1].id];
-        }
-        i += 1;
-    }
+    for (int i = 1; i < NUM_NODES; i++)
+        result += distances[tour[i].id][tour[i+1].id];
+
+    result += distances[tour[1].id][tour[NUM_NODES].id];
 
     return result;
 }
