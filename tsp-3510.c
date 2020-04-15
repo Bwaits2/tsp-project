@@ -77,11 +77,8 @@ void build(char *filepath) {
 int distance(Node *tour) {
     int result = 0;
 
-    int i = 1;
-    while (i < NUM_NODES) {
-        result += distances[tour[i].id][tour[i-1].id];
-        i += 1;
-    }
+    for (int i = 1; i < NUM_NODES; i++)
+        result += distances[tour[i].id][tour[i+1].id];
 
     return result;
 }
@@ -106,7 +103,7 @@ void compute() {
 }
 
 Node* sa() {
-    int t = 1000000;
+    double t = 1000000;
     float cr = .0001;
 
     // Node *current = (Node*)malloc((sizeof(Node) * NUM_NODES) + 1);
