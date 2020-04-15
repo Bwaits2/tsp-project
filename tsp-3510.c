@@ -113,7 +113,7 @@ void compute(char *filepath) {
 
 
     //Calculate standard devation here
-    
+
 
 
     fclose(fp);
@@ -197,8 +197,13 @@ Node* sa() {
         int n = c - c_removed + n_added;
 
         errno = 0;
-        float val = exp((c-n)/t);
-        if (errno != ERANGE && val > rand())
+        float val;
+        if (n < c) {
+            val = 1.0;
+        } else {
+            val = exp((c-n)/t);
+        }
+        if (errno != ERANGE && val > (float)rand() / (float)RAND_MAX)
             // current = new;
             for (int i = 1; i <= NUM_NODES; i++)
                 current[i] = new[i];
