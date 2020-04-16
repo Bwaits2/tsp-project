@@ -35,7 +35,6 @@ void build(char *filepath) {
         printf("FAILED TO LOAD FILE\n");
         return;
     }
-    // nodes = (Node *)malloc(sizeof(Node) * 1024); // fix size
 
     for (int i = 0; i < 1024; i++) {
         char buffer[64];
@@ -45,16 +44,10 @@ void build(char *filepath) {
             NUM_NODES--;
             break;
         }
-        // printf("%d %f %f\n", nodes[NUM_NODES].id, nodes[NUM_NODES].x, nodes[NUM_NODES].y);
         NUM_NODES++;
     }
 
     fclose(fp);
-
-    // allcate size for the distance table
-    // distances = (int **)calloc(sizeof(int *) * (NUM_NODES), 1); // fix size
-    // for (int i = 1; i <= NUM_NODES; i++)
-    //     distances[i] = (int *)calloc((NUM_NODES) * sizeof(int), 1);
 
     // populate the distances table
     for (int i = 1; i <= NUM_NODES; i++) {
@@ -68,14 +61,6 @@ void build(char *filepath) {
             }
         }
     }
-
-    // PRINT TABLE FOR TESTING
-    // for (int i = 1; i <= NUM_NODES; i++) {
-    //     for (int j = 1; j <= NUM_NODES; j++) {
-    //         printf("%d ", distances[i][j]);
-    //     }
-    //     printf("\n");
-    // }
 }
 
 int distance(Node *tour) {
@@ -110,7 +95,6 @@ void compute(char *filepath) {
     mean /= 10;
     fprintf(fp, "\nMean: %f\n", mean);
 
-
     //Calculate standard devation here
     float standDev = 0.0;
     for (int i = 0; i < 10; i++)
@@ -118,9 +102,7 @@ void compute(char *filepath) {
     standDev = sqrt(standDev / 10);
     fprintf(fp, "Standard Deviation: %f\n", standDev);
 
-
     fclose(fp);
-
 
     // print results to console
     for (int i = 0; i < 10; i++)
@@ -129,9 +111,8 @@ void compute(char *filepath) {
 }
 
 Node* sa() {
-    // best seems to be 100, .0001
-    double t = 10000;
-    float cr = .0001;
+    double t = 1000;
+    float cr = .00001;
 
     if ((((double) (clock() - t)) / CLOCKS_PER_SEC) >= maxt) {
         early_exit();
@@ -161,13 +142,11 @@ Node* sa() {
         int n = distance(new);
 
         if (exp((c-n)/t) > (rand()/(double)RAND_MAX)) {
-            // current = new
             for (int i = 1; i <= NUM_NODES; i++)
                 current[i] = new[i];
         }
 
         if (n < c) {
-            // best = new;
             for (int i = 1; i <= NUM_NODES; i++)
                 best[i] = new[i];
         }
