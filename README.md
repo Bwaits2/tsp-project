@@ -1,13 +1,13 @@
-# tsp-project
-3510 course project
+Alex Elliott: aelliott41@gatech.edu
+Brenden Waits: brendenwaits@gatech.edu
 
-this link is helpful:
-http://www.theprojectspot.com/tutorial-post/simulated-annealing-algorithm-for-beginners/6
+Files we are submitting:
+1) Makefile -> compiles C for you
+1) tsp-3510.c -> contains all C code
+2) algorithm.pdf -> explains our algorithm
 
-Compile instructions:
-1. be in a unix vm
-2. type make
-3. ./tsp-3510 mat-100.txt output.txt 180
+To run:
+1) Type "make" on a unix machine
+2) ./tsp-3510 <test.txt> <output.txt> <time>
 
-potential ideas:
-1. writing a script that runs tsp-3510 a bunch of times to get an idea for the best t and cr
+There are no known bugs or limitations. Our program works for up to 1024 nodes, which is over the specified limit.
