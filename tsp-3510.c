@@ -4,6 +4,7 @@
 #include <string.h>
 #include <errno.h>
 #include <time.h>
+#include <limits.h>
 
 // globals
 typedef struct Node {
@@ -17,16 +18,22 @@ int distances[1024][1024];
 Node nodes[1024];
 Node current[1024];
 Node new[1024];
-Node best[1024];
+Node best[1024]; //best tour for each sa run
 clock_t start;
 int maxt;
+
+Node *bestTour; //best tour out of 10 sa runs
+int bestTourLength = INT_MAX; //best total length
+
+FILE *outputFile;
+char *outputFilePath;
 
 // function delarations
 void build(char *filepath);
 int distance(Node *tour);
 void compute();
 Node* sa();
-void early_exit();
+void export_final_results();
 
 void build(char *filepath) {
     FILE *fp;
@@ -74,40 +81,17 @@ int distance(Node *tour) {
     return result;
 }
 
-void compute(char *filepath) {
-    FILE *fp;
-    fp = fopen (filepath, "w");
-    int results[10];
-
+void compute() {
+    printf("Candidate Tours:\n");
     for (int i = 1; i <= 10; i++) {
         Node *sa_result = sa();
-        fprintf(fp, "Tour %d:\n[", i);
-        for (int j = 1; j <= NUM_NODES; j++)
-            fprintf(fp, "%d ", sa_result[j].id);
-        fprintf(fp, "%d]\n", sa_result[1].id);
-        results[i-1] = distance(sa_result);
-        fprintf(fp, "Cost: %d\n\n", results[i-1]);
+        int sa_distance = distance(sa_result);
+        printf("%d\n", sa_distance);
+        if (sa_distance < bestTourLength) {
+            bestTour = sa_result;
+            bestTourLength = sa_distance;
+        }
     }
-
-    float mean = 0;
-    for (int i = 0; i < 10; i++)
-        mean += results[i];
-    mean /= 10;
-    fprintf(fp, "\nMean: %f\n", mean);
-
-    //Calculate standard devation here
-    float standDev = 0.0;
-    for (int i = 0; i < 10; i++)
-        standDev += pow(results[i] - mean, 2);
-    standDev = sqrt(standDev / 10);
-    fprintf(fp, "Standard Deviation: %f\n", standDev);
-
-    fclose(fp);
-
-    // print results to console
-    for (int i = 0; i < 10; i++)
-        printf("%d\n", results[i]);
-    printf("\nMean: %f\nStandard Deviation: %f\n", mean, standDev);
 }
 
 Node* sa() {
@@ -115,14 +99,16 @@ Node* sa() {
     float cr = .00001;
 
     if ((((double) (clock() - t)) / CLOCKS_PER_SEC) >= maxt) {
-        early_exit();
+        printf("\nTIME LIMIT EXPIRED\n");
+        export_final_results();
     }
 
     for (int i = 1; i <= NUM_NODES; i++)
-        current[i] = nodes[i];
+        best[i] = nodes[i];
 
     for (int i = 1; i <= NUM_NODES; i++)
-        best[i] = nodes[i];
+        current[i] = best[i];
+
 
     while (t > 1) {
 
@@ -157,20 +143,34 @@ Node* sa() {
     return best;
 }
 
-void early_exit() {
-    printf("early exit\n");
+void export_final_results() {
+    
+    printf("\nMin: %d\n", bestTourLength);
+    printf("\nFinal results located in %s\n", outputFilePath);
+
+
+    outputFile = fopen (outputFilePath, "w");
+    fprintf(outputFile, "Tour:\n[");
+    for (int j = 1; j <= NUM_NODES; j++) {
+        fprintf(outputFile, "%d ", bestTour[j].id);
+    }
+    fprintf(outputFile, "%d]\n", bestTour[1].id);
+    fprintf(outputFile, "Total Cost: %d\n", bestTourLength);
+    fclose(outputFile);
     exit(0);
 }
 
 int main(int argc, char *argv[]) {
     start = clock();
     maxt = atoi(argv[3]);
+    outputFilePath = argv[2];
 
     time_t tm;
     srand((unsigned) time(&tm));
 
     build(argv[1]);
-    compute(argv[2]);
+    compute();
+    export_final_results();
 
     return 0;
 }
