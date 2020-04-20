@@ -1,10 +1,11 @@
-Alex Elliott: aelliott41@gatech.edu
+Alex Elliott: aelliott41@gatech.edu 
 Brenden Waits: brendenwaits@gatech.edu
 
 Files we are submitting:
 1) Makefile -> compiles C for you
-1) tsp-3510.c -> contains all C code
-2) algorithm.pdf -> explains our algorithm
+2) tsp-3510.c -> contains all C code
+3) algorithm.pdf -> explains our algorithm
+4) 10RunResults.txt -> results from 10 runs of our program
 
 To run:
 1) Type "make" on a unix machine
